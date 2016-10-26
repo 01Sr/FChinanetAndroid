@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Base64;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,7 +43,6 @@ public class Login {
     private boolean isLogin() throws IOException, JSONException {
         boolean flag=false;
         URL url=new URL("https://wifi.loocha.cn/"+id+"/wifi/status");
-        Log.e(">>>>>>>>", String.valueOf(url));
         HttpURLConnection conn= (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Authorization",author);
         if(conn.getResponseCode()==200){
@@ -54,7 +52,6 @@ public class Login {
             while ((line = in.readLine()) != null) {
                 result += line;
             }
-            Log.e(">>>>>>>>", result);
             JSONObject json=new JSONObject(result);
             if(!json.isNull("wifiOnlines")){
                 JSONArray onlines=json
@@ -80,7 +77,6 @@ public class Login {
         URL url=new URL("https://www.loocha.com.cn:8443/login");
         HttpURLConnection connection=(HttpURLConnection) url.openConnection();
         connection.setRequestProperty("Authorization", author);
-        Log.e(">>>>>>>>>>",author);
         switch(connection.getResponseCode()){
             case 200:
                 BufferedReader in=new BufferedReader(new InputStreamReader(connection.getInputStream())) ;
@@ -125,8 +121,10 @@ public class Login {
             return "";
         }
     }
+
+    //获取密码
     private String getPasswd() throws IOException, JSONException {
-        URL url=new URL("https://www.loocha.com.cn/"+id+"/wifi?server_did="+serverId);
+        URL url=new URL("https://wifi.loocha.cn/"+id+"/wifi?server_did="+serverId);
         HttpURLConnection connection=(HttpURLConnection) url.openConnection();
         connection.setRequestProperty("Authorization", author);
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -136,7 +134,6 @@ public class Login {
             while ((line = in.readLine()) != null) {
                 result += line;
             }
-            Log.e(">>>>>>>>",result);
             JSONObject json=new JSONObject(result);
             JSONObject telecomWifiRes=json.getJSONObject("telecomWifiRes");
             if(telecomWifiRes.isNull("password")) return "获取密码失败，请在掌上大学重新获取密码后尝试";
@@ -145,6 +142,8 @@ public class Login {
     return "密码获取失败";
 
     }
+
+    //获取ip,brasip
     private String getIp() throws IOException {
         URL url=new URL("http://test.f-young.cn");
         HttpURLConnection conn=(HttpURLConnection) url.openConnection();
@@ -159,6 +158,7 @@ public class Login {
         return "未能获取设备ip,请检查是否连接至校园网，或已登录";
     }
 
+    //拨号
     private String dialUp(String qrCode,String code) throws IOException, JSONException {
         URL realUrl = new URL("https://wifi.loocha.cn/"+id+"/wifi/enable?qrcode="+qrCode+ "&code="+code);
         HttpsURLConnection conn = (HttpsURLConnection) realUrl.openConnection();
@@ -203,7 +203,6 @@ public class Login {
         URL url=new URL("https://wifi.loocha.cn/"+id+"/wifi/kickoff?wanip="+wanIp+"&brasip="+brasIp);
         HttpURLConnection conn=(HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Authorization", author);
-        Log.e(">>>>>>>>>",author);
         conn.setRequestMethod("DELETE");
         int code=conn.getResponseCode();
         if(code==200){
@@ -230,20 +229,17 @@ public class Login {
                 author="Basic "+author;
                 try {
                     info=login();
-                    Log.e(">>>>>>>>>",info);
                     if(!info.equals("0"))return;
                     if(isLogin()){info="已经登陆";return;}
-                    Log.e(">>>>>>>>>",info);
                     if(isFull){ info="设备已满";return;}
                     info=getIp();
-                    Log.e(">>>>>>>>>",info);
                     if(!info.equals("0"))return;
 //                    for(int i=0;i<3;i++){
                         String qrCode=getQRCode();
-                        Log.e(">>>>>>>>>",qrCode);
+
                         if(qrCode.equals("")){ info="code获取异常";return;}
                         info=getPasswd();
-                        Log.e(">>>>>>>>>",info);
+
                         if(!info.matches("\\d{6}")) return;
                         String code=info;
                         info=dialUp(qrCode,code);
@@ -275,7 +271,6 @@ public class Login {
             public void run() {
                 String info = "";
                 String ap=account+":"+passwd;
-                Log.e(">>>>>>>>>>",ap);
                 author=Base64.encodeToString(ap.getBytes(),Base64.DEFAULT);
                 author="Basic "+author;
                 try {
