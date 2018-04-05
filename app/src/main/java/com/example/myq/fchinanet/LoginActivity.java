@@ -122,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
      * errors are presented and no actual login attempt is made.
      */
     private void attempt(boolean l) {
-        SharedPreferences sp=getSharedPreferences(getString(R.string.sp),1);
+        SharedPreferences sp=getSharedPreferences(getString(R.string.sp),Context.MODE_PRIVATE);
         SharedPreferences.Editor edit=sp.edit();
         edit.putString("account", String.valueOf(mAccountView.getText()));
         edit.putString("passwd", String.valueOf(mPasswordView.getText()));
