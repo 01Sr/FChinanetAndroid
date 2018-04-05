@@ -3,6 +3,7 @@ package com.example.myq.fchinanet;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
@@ -92,11 +93,12 @@ public class LoginActivity extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        SharedPreferences sp=getSharedPreferences(getString(R.string.sp),1);
+        SharedPreferences sp=getSharedPreferences(getString(R.string.sp), Context.MODE_PRIVATE);
         if(sp.contains("account"))
             mAccountView.setText(sp.getString("account",""));
         if(sp.contains("passwd"))
             mPasswordView.setText(sp.getString("passwd",""));
+        logout.setVisibility(View.GONE);
     }
 
     class MyHandler extends Handler {

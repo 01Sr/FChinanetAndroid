@@ -34,7 +34,7 @@ public class Login {
         this.account=account;
         this.passwd=passwd;
         this.handler=handler;
-        SharedPreferences sp=context.getSharedPreferences(context.getString(R.string.sp),1);
+        SharedPreferences sp=context.getSharedPreferences(context.getString(R.string.sp),Context.MODE_PRIVATE);
         this.lastIp= sp.getString("lastIp","");
     }
 
@@ -100,7 +100,7 @@ public class Login {
         return "login异常";
     }
     private String getQRCode() throws IOException, JSONException {
-        URL url=new URL("https://wifi.loocha.cn/0/wifi/qrcode" + "?brasip="+brasIp + "&ulanip=" +wanIp + "&wlanip=" +wanIp);
+        URL url=new URL("https://wifi.loocha.cn/0/wifi/qrcode"+"?brasip="+brasIp+"&ulanip="+wanIp+"&wlanip="+wanIp);
         HttpURLConnection connection=(HttpURLConnection) url.openConnection();
         BufferedReader in=new BufferedReader(new InputStreamReader(connection.getInputStream())) ;
         String result="";
@@ -124,7 +124,7 @@ public class Login {
 
     //获取密码
     private String getPasswd() throws IOException, JSONException {
-        URL url=new URL("https://wifi.loocha.cn/"+id+"/wifi?server_did="+serverId);
+        URL url=new URL("https://wifi.loocha.cn/"+id+"/wifi/telecom/pwd?type=4");
         HttpURLConnection connection=(HttpURLConnection) url.openConnection();
         connection.setRequestProperty("Authorization", author);
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -160,7 +160,7 @@ public class Login {
 
     //拨号
     private String dialUp(String qrCode,String code) throws IOException, JSONException {
-        URL realUrl = new URL("https://wifi.loocha.cn/"+id+"/wifi/enable?qrcode="+qrCode+ "&code="+code);
+        URL realUrl = new URL("https://wifi.loocha.cn/"+id+"/wifi/telecom/auto/login?qrcode="+qrCode+"&code="+code+"&type=1");
         HttpsURLConnection conn = (HttpsURLConnection) realUrl.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Authorization", author);
@@ -179,7 +179,7 @@ public class Login {
             JSONObject json=new JSONObject(result);
             int status=json.getInt("status");
             if(status==0){
-                SharedPreferences sp=context.getSharedPreferences(context.getString(R.string.sp),1);
+                SharedPreferences sp=context.getSharedPreferences(context.getString(R.string.sp),Context.MODE_PRIVATE);
                 SharedPreferences.Editor ed=sp.edit();
                 ed.putString("lastIp",wanIp);
                 ed.putString("brasIp",brasIp);
@@ -196,7 +196,7 @@ public class Login {
     }
 
     private String kickOff() throws IOException {
-        SharedPreferences sp=context.getSharedPreferences(context.getString(R.string.sp),1);
+        SharedPreferences sp=context.getSharedPreferences(context.getString(R.string.sp), Context.MODE_PRIVATE);
         wanIp=sp.getString("lastIp","");
         brasIp=sp.getString("brasIp","");
         if(wanIp.equals("")||brasIp.equals("")) return "尚未登陆";
