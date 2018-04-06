@@ -31,6 +31,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private Spinner typeSpinner;
     private MyHandler myHandler=null;
 
     @Override
@@ -75,6 +77,8 @@ public class LoginActivity extends AppCompatActivity {
         mAccountView = (EditText) findViewById(R.id.account);
 
         mPasswordView = (EditText) findViewById(R.id.password);
+
+        typeSpinner=findViewById(R.id.type);
 
         Button signin = (Button) findViewById(R.id.signin_btn);
         signin.setOnClickListener(new OnClickListener() {
@@ -93,11 +97,17 @@ public class LoginActivity extends AppCompatActivity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
+
         SharedPreferences sp=getSharedPreferences(getString(R.string.sp), Context.MODE_PRIVATE);
         if(sp.contains("account"))
             mAccountView.setText(sp.getString("account",""));
         if(sp.contains("passwd"))
             mPasswordView.setText(sp.getString("passwd",""));
+        if(sp.contains("type")){
+            Log.i("cb",sp.getString("type","0"));
+            typeSpinner.setSelection(Integer.valueOf(sp.getString("type","0")));
+        }
+
         logout.setVisibility(View.GONE);
     }
 
@@ -126,6 +136,8 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences.Editor edit=sp.edit();
         edit.putString("account", String.valueOf(mAccountView.getText()));
         edit.putString("passwd", String.valueOf(mPasswordView.getText()));
+        Log.i("cb",typeSpinner.getSelectedItem().toString());
+        edit.putString("type",typeSpinner.getSelectedItem().toString());
         edit.commit();
         if (myHandler == null) myHandler=new MyHandler();
 
@@ -158,7 +170,7 @@ public class LoginActivity extends AppCompatActivity {
             focusView.requestFocus();
         } else {
             showProgress(true);
-            Login login=new Login(this,account,password,myHandler);
+            Login login=new Login(this,account,password,typeSpinner.getSelectedItem().toString(),myHandler);
             if(l) login.online();
             else login.offline();
         }

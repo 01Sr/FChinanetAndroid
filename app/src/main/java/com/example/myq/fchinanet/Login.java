@@ -27,12 +27,14 @@ import javax.net.ssl.SSLSession;
 public class Login {
     Context context;
     String account,passwd,lastIp,author,id,serverId,brasIp,wanIp;
+    String type;
     boolean isFull=false;
     Handler handler=null;
-    public Login(Context context, String account, String passwd,Handler handler){
+    public Login(Context context, String account, String passwd,String type,Handler handler){
         this.context=context;
         this.account=account;
         this.passwd=passwd;
+        this.type=type;
         this.handler=handler;
         SharedPreferences sp=context.getSharedPreferences(context.getString(R.string.sp),Context.MODE_PRIVATE);
         this.lastIp= sp.getString("lastIp","");
@@ -151,8 +153,12 @@ public class Login {
         if(conn.getResponseCode()==302){
             String param=conn.getHeaderField("Location").split("\\?")[1];
             String []args=param.split("&");
-            wanIp=args[0].split("=")[1];
-            brasIp=args[1].split("=")[1];
+            for(String p : args){
+                if(p.contains("wlanuserip"))
+                    wanIp=p.split("=")[1];
+                if(p.contains("mscgip"))
+                    brasIp=p.split("=")[1];
+            }
             return "0";
         }
         return "未能获取设备ip,请检查是否连接至校园网，或已登录";
@@ -160,7 +166,7 @@ public class Login {
 
     //拨号
     private String dialUp(String qrCode,String code) throws IOException, JSONException {
-        URL realUrl = new URL("https://wifi.loocha.cn/"+id+"/wifi/telecom/auto/login?qrcode="+qrCode+"&code="+code+"&type=1");
+        URL realUrl = new URL("https://wifi.loocha.cn/"+id+"/wifi/telecom/auto/login?qrcode="+qrCode+"&code="+code+"&type="+type);
         HttpsURLConnection conn = (HttpsURLConnection) realUrl.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Authorization", author);
